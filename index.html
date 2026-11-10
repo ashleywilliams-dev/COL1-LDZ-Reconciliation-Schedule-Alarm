@@ -14,10 +14,8 @@
   /* main panel takes the step's color */
   #panel { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
            color:#fff; padding:6px 10px; transition:background .6s; }
-  #label { font-size:13px; letter-spacing:.04em; text-transform:uppercase; opacity:.9; min-height:1.2em; }
-  #step  { font-size:17px; font-weight:700; line-height:1.15; margin-top:2px; min-height:1.3em; }
-  #clock { font-size:34px; font-weight:700; letter-spacing:.02em; line-height:1.05; margin-top:4px; font-variant-numeric:tabular-nums; }
-  #at    { font-size:12px; opacity:.9; margin-top:2px; }
+  #step  { font-size:24px; font-weight:700; line-height:1.15; margin-top:2px; min-height:1.3em; }
+  #clock { font-size:50px; font-weight:700; letter-spacing:.02em; line-height:1.05; margin-top:4px; font-variant-numeric:tabular-nums; }
 
   /* schedule strip */
   #strip { display:flex; }
@@ -29,10 +27,8 @@
 </head>
 <body>
   <div id="panel">
-    <div id="label"></div>
     <div id="step"></div>
     <div id="clock">--:--:--</div>
-    <div id="at"></div>
   </div>
   <div id="strip"></div>
 
@@ -43,7 +39,6 @@ const STEPS = [
   { hour: 19, min: 0, name: "Dashboard updates to current day", color: "#FF764D" }, // orange
   { hour: 23, min: 0, name: "Daily Consumption Issue generated", color: "#DC5AEE" }  // pink
 ];
-const SWAP_SECONDS = 6;   // how often the heading alternates between "Next step" and "Scheduled for"
 
 const strip = document.getElementById("strip");
 STEPS.forEach((s, i) => {
@@ -78,10 +73,6 @@ function tick() {
   document.getElementById("clock").textContent = `${pad(h)}:${pad(m)}:${pad(sec)}`;
   document.getElementById("step").textContent = s.name;
 
-  // alternate the small heading so the tile "occasionally" restates which step is next
-  const phase = Math.floor(now.getTime() / 1000 / SWAP_SECONDS) % 2;
-  document.getElementById("label").textContent = phase === 0 ? "Next step" : `Step ${idx + 1} of ${STEPS.length}`;
-  document.getElementById("at").textContent = (target.getDate() !== now.getDate() ? "tomorrow at " : "today at ") + fmtTime(s.hour, s.min);
 
   STEPS.forEach((st, i) => {
     const el = document.getElementById("seg" + i);
