@@ -19,8 +19,8 @@
 
   /* schedule strip */
   #strip { display:flex; }
-  .seg { flex:1; padding:5px 4px 6px; text-align:center; color:#fff; font-size:10.5px; line-height:1.15; opacity:.55; }
-  .seg b { display:block; font-size:12px; }
+  .seg { flex:1; padding:6px 4px; text-align:center; color:#fff; font-size:10.5px; line-height:1.15; opacity:.55; }
+  .seg b { display:block; font-size:14px; }
   .seg.active { opacity:1; }
   .seg.done { opacity:.35; text-decoration:line-through; }
 </style>
@@ -36,15 +36,15 @@
 /* Schedule: local time of the viewer's browser, every day. Edit here if times change. */
 const STEPS = [
   { hour: 14, min: 0, name: "LDZ Shipping Log Generation",      color: "#440B39" }, // purple
-  { hour: 19, min: 0, name: "Dashboard updates to current day", color: "#FF764D" }, // orange
-  { hour: 23, min: 0, name: "Daily Consumption Issue generated", color: "#DC5AEE" }  // pink
+  { hour: 19, min: 0, name: "Dashboard updates to current day", color: "#B8431F" }, // dark orange
+  { hour: 23, min: 0, name: "Daily Consumption Issue generated", color: "#8E2A9E" }  // dark pink
 ];
 
 const strip = document.getElementById("strip");
 STEPS.forEach((s, i) => {
   const d = document.createElement("div");
   d.className = "seg"; d.style.background = s.color; d.id = "seg" + i;
-  d.innerHTML = `<b>${fmtTime(s.hour, s.min)}</b>${s.name}`;
+  d.innerHTML = `<b>${fmtTime(s.hour, s.min)}</b>`;
   strip.appendChild(d);
 });
 
