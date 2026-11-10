@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily schedule countdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --purple:#440B39; --orange:#FF764D; --pink:#DC5AEE; --beige:#FFF1EE; --text:#440B39; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; background:#fff; }
+  body { font-family:"Funnel Display","Inter",system-ui,sans-serif; color:var(--text); display:flex; flex-direction:column; }
+
+  /* main panel takes the step's color */
+  #panel { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+           color:#fff; padding:6px 10px; transition:background .6s; }
+  #label { font-size:13px; letter-spacing:.04em; text-transform:uppercase; opacity:.9; min-height:1.2em; }
+  #step  { font-size:17px; font-weight:700; line-height:1.15; margin-top:2px; min-height:1.3em; }
+  #clock { font-size:34px; font-weight:700; letter-spacing:.02em; line-height:1.05; margin-top:4px; font-variant-numeric:tabular-nums; }
+  #at    { font-size:12px; opacity:.9; margin-top:2px; }
+
+  /* schedule strip */
+  #strip { display:flex; }
+  .seg { flex:1; padding:5px 4px 6px; text-align:center; color:#fff; font-size:10.5px; line-height:1.15; opacity:.55; }
+  .seg b { display:block; font-size:12px; }
+  .seg.active { opacity:1; }
+  .seg.done { opacity:.35; text-decoration:line-through; }
+</style>
+</head>
+<body>
+  <div id="panel">
+    <div id="label"></div>
+    <div id="step"></div>
+    <div id="clock">--:--:--</div>
+    <div id="at"></div>
+  </div>
+  <div id="strip"></div>
+
+<script>
+/* Schedule: local time of the viewer's browser, every day. Edit here if times change. */
+const STEPS = [
+  { hour: 14, min: 0, name: "LDZ Shipping Log Generation",      color: "#440B39" }, // purple
+  { hour: 19, min: 0, name: "Dashboard updates to current day", color: "#FF764D" }, // orange
+  { hour: 23, min: 0, name: "Daily Consumption Issue generated", color: "#DC5AEE" }  // pink
+];
+const SWAP_SECONDS = 6;   // how often the heading alternates between "Next step" and "Scheduled for"
+
+const strip = document.getElementById("strip");
+STEPS.forEach((s, i) => {
+  const d = document.createElement("div");
+  d.className = "seg"; d.style.background = s.color; d.id = "seg" + i;
+  d.innerHTML = `<b>${fmtTime(s.hour, s.min)}</b>${s.name}`;
+  strip.appendChild(d);
+});
+
+function fmtTime(h, m) {
+  const ampm = h >= 12 ? "pm" : "am"; const hh = ((h + 11) % 12) + 1;
+  return `${hh}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+function pad(n) { return String(n).padStart(2, "0"); }
+
+function tick() {
+  const now = new Date();
+  // find the next step today; if none left, first step tomorrow
+  let idx = STEPS.findIndex(s => new Date(now.getFullYear(), now.getMonth(), now.getDate(), s.hour, s.min) > now);
+  let target;
+  if (idx === -1) {
+    idx = 0;
+    target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, STEPS[0].hour, STEPS[0].min);
+  } else {
+    target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), STEPS[idx].hour, STEPS[idx].min);
+  }
+  const s = STEPS[idx];
+  const diff = Math.max(0, Math.floor((target - now) / 1000));
+  const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), sec = diff % 60;
+
+  document.getElementById("panel").style.background = s.color;
+  document.getElementById("clock").textContent = `${pad(h)}:${pad(m)}:${pad(sec)}`;
+  document.getElementById("step").textContent = s.name;
+
+  // alternate the small heading so the tile "occasionally" restates which step is next
+  const phase = Math.floor(now.getTime() / 1000 / SWAP_SECONDS) % 2;
+  document.getElementById("label").textContent = phase === 0 ? "Next step" : `Step ${idx + 1} of ${STEPS.length}`;
+  document.getElementById("at").textContent = (target.getDate() !== now.getDate() ? "tomorrow at " : "today at ") + fmtTime(s.hour, s.min);
+
+  STEPS.forEach((st, i) => {
+    const el = document.getElementById("seg" + i);
+    const passedToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), st.hour, st.min) <= now;
+    el.className = "seg" + (i === idx ? " active" : (passedToday && target.getDate() === now.getDate() ? " done" : ""));
+  });
+}
+tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
